@@ -63,11 +63,6 @@ class ConfigenCommand extends Command
         if ($input->getOption('template'))
         {
             $template = $input->getOption('template');
-            if ( ! file_exists($template) || ! is_readable($template))
-            {
-                $output->writeln(sprintf('%s does not exist or is not readable', $filePath));
-                return;
-            }
 
             /* @var $twig \Twig_Environment */
             $twig = $this->getApplication()->getService('twig');
