@@ -17,7 +17,7 @@ class ConfigenCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('confi:gen')
+            ->setName('generate')
             ->setDescription('Generate vhost config files from a Symfony2 parameters.yml')
             ->addArgument('path', InputArgument::REQUIRED, 'parameters.yml path')
             ->addArgument('type', InputArgument::OPTIONAL, '[ vhost, envvars ]')
