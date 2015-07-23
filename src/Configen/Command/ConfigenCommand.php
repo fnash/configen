@@ -74,7 +74,7 @@ class ConfigenCommand extends Command
             $file = str_replace(self::SYMFONY_VARS, $file, file_get_contents($template));
         }
 
-        $output->writeln($file);
+        $output->write($file);
     }
 
 
