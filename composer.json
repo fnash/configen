@@ -8,7 +8,6 @@
     "require": {
         "php": ">=5.4",
         "cilex/cilex": "1.0.*@dev",
-        "symfony/yaml": "2.7.*",
-        "roderik/cilex-twig": "1.0.*"
+        "symfony/yaml": "2.7.*"
     }
 }

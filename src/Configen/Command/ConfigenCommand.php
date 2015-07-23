@@ -11,6 +11,9 @@ use Symfony\Component\Yaml\Yaml;
 
 class ConfigenCommand extends Command
 {
+
+    const SYMFONY_VARS = '{{symfony_vars}}';
+
     protected function configure()
     {
         $this
@@ -18,33 +21,31 @@ class ConfigenCommand extends Command
             ->setDescription('Generate vhost config files from a Symfony2 parameters.yml')
             ->addArgument('path', InputArgument::REQUIRED, 'parameters.yml path')
             ->addArgument('type', InputArgument::OPTIONAL, '[ vhost, envvars ]')
-            ->addOption('template', null, InputOption::VALUE_OPTIONAL, 'If set, the task will output twig template');
+            ->addOption('in-template', null, InputOption::VALUE_OPTIONAL, 'If set, the task will replace '.self::SYMFONY_VARS.' in the template');
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $filePath = $input->getArgument('path');
-
         if ( ! file_exists($filePath) || ! is_readable($filePath))
         {
             $output->writeln(sprintf('%s does not exist or is not readable', $filePath));
+
             return;
         }
 
-
         // transform
-        $parameters = Yaml::parse(file_get_contents($filePath));
-        $parameters = $parameters['parameters'];
-        $paramArray = [];
-        foreach($parameters as $param => $value)
+        $originalParameters = Yaml::parse(file_get_contents($filePath));
+        $originalParameters = $originalParameters['parameters'];
+        $parameters = [];
+        foreach($originalParameters as $param => $value)
         {
             $param = 'SYMFONY__'.strtoupper(str_replace('.', '__', $param));
 
-            $paramArray[$param] = $value;
+            $parameters[$param] = $value;
         }
 
-        $file = '';
         switch($input->getArgument('type'))
         {
             case 'envvars':
@@ -60,14 +61,17 @@ class ConfigenCommand extends Command
                     });
         }
 
-        if ($input->getOption('template'))
+        $template = $input->getOption('in-template');
+        if ($template)
         {
-            $template = $input->getOption('template');
+            if ( ! file_exists($template) || ! is_readable($template))
+            {
+                $output->writeln(sprintf('%s does not exist or is not readable', $template));
 
-            /* @var $twig \Twig_Environment */
-            $twig = $this->getApplication()->getService('twig');
+                return;
+            }
 
-            $file = $twig->render($template, ['symfony_vars' => $file]);
+            $file = str_replace(self::SYMFONY_VARS, $file, file_get_contents($template));
         }
 
         $output->writeln($file);
